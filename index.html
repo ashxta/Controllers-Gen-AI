@@ -1,643 +1,1098 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TruthGuard — AI-Powered Misinformation Detection</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TruthGuard — AI-Powered Misinformation Detection</title>
 
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-  <meta name="theme-color" content="#060315" />
+    <meta name="theme-color" content="#060315" />
 
-  <style>
-    :root{
-      --bg:#04030a;
-      --panel: rgba(22,18,34,0.62);
-      --neon-cyan:#00f0ff;
-      --neon-purple:#9c6bff;
-      --neon-red:#ff3c5f;
-      --neon-green:#00ff9d;
-      --muted:#9aa0b4;
-      --glass-border: rgba(255,255,255,0.04);
-      --accent: linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%}
-    body{
-      font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial;
-      background: radial-gradient(ellipse at 10% 10%, rgba(12,6,30,1) 0%, rgba(3,2,12,1) 40%, #02010a 100%);
-      color:#e6eef8;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      overflow-x:hidden;
-      line-height:1.45;
-    }
+    <style>
+        :root{
+            --bg:#04030a;
+            --panel: rgba(22,18,34,0.62);
+            --neon-cyan:#00f0ff;
+            --neon-purple:#9c6bff;
+            --neon-red:#ff3c5f;
+            --neon-green:#00ff9d;
+            --muted:#9aa0b4;
+            --glass-border: rgba(255,255,255,0.04);
+            --accent: linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));
+            --premium-color: #ffb700;
+        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{height:100%}
+        body{
+            font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+            background: radial-gradient(ellipse at 10% 10%, rgba(12,6,30,1) 0%, rgba(3,2,12,1) 40%, #02010a 100%);
+            color:#e6eef8;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            overflow-x:hidden;
+            line-height:1.45;
+        }
 
-    /* Canvas background */
-    #bg-canvas{position:fixed;inset:0;z-index:0;width:100%;height:100%;display:block}
+        /* Canvas background */
+        #bg-canvas{position:fixed;inset:0;z-index:0;width:100%;height:100%;display:block}
 
-    /* subtle grid overlay */
-    .grid-overlay{
-      position:fixed;inset:0;z-index:0;pointer-events:none;
-      background-image:
-        linear-gradient(transparent 95%, rgba(255,255,255,0.02) 95%),
-        linear-gradient(90deg, transparent 95%, rgba(255,255,255,0.02) 95%);
-      background-size: 120px 120px, 120px 120px;
-      mix-blend-mode:overlay;opacity:0.6;
-    }
+        /* subtle grid overlay */
+        .grid-overlay{
+            position:fixed;inset:0;z-index:0;pointer-events:none;
+            background-image:
+                linear-gradient(transparent 95%, rgba(255,255,255,0.02) 95%),
+                linear-gradient(90deg, transparent 95%, rgba(255,255,255,0.02) 95%);
+            background-size: 120px 120px, 120px 120px;
+            mix-blend-mode:overlay;opacity:0.6;
+        }
 
-    /* Header */
-    header{
-      position:fixed;top:18px;left:50%;transform:translateX(-50%);
-      z-index:40;width:min(1100px,94%);display:flex;justify-content:space-between;align-items:center;
-      padding:12px 18px;border-radius:14px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border:1px solid var(--glass-border);backdrop-filter: blur(8px);
-      box-shadow:0 6px 30px rgba(2,2,8,0.6);
-    }
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{font-family:"Orbitron",sans-serif;font-weight:800;color:var(--neon-cyan);font-size:18px;display:flex;gap:10px;align-items:center}
-    .logo .dot{width:10px;height:10px;border-radius:3px;background:var(--neon-purple);box-shadow:0 0 12px var(--neon-purple)}
-    nav ul{display:flex;gap:16px;list-style:none;margin:0;padding:0}
-    nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;padding:8px 10px;border-radius:8px;transition:all .25s ease}
-    nav a:hover{color:var(--neon-cyan);transform:translateY(-3px)}
-    .cta{background:var(--accent);padding:8px 14px;border-radius:10px;color:#02010a;font-weight:700;font-size:13px;text-decoration:none;box-shadow:0 6px 20px rgba(156,107,255,0.12)}
+        /* Header */
+        header{
+            position:fixed;top:18px;left:50%;transform:translateX(-50%);
+            z-index:40;width:min(1100px,94%);display:flex;justify-content:space-between;align-items:center;
+            padding:12px 18px;border-radius:14px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border:1px solid var(--glass-border);backdrop-filter: blur(8px);
+            box-shadow:0 6px 30px rgba(2,2,8,0.6);
+        }
+        .brand{display:flex;gap:12px;align-items:center}
+        .logo{font-family:"Orbitron",sans-serif;font-weight:800;color:var(--neon-cyan);font-size:18px;display:flex;gap:10px;align-items:center}
+        .logo .dot{width:10px;height:10px;border-radius:3px;background:var(--neon-purple);box-shadow:0 0 12px var(--neon-purple)}
+        nav ul{display:flex;gap:16px;list-style:none;margin:0;padding:0}
+        nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;padding:8px 10px;border-radius:8px;transition:all .25s ease}
+        nav a:hover{color:var(--neon-cyan);transform:translateY(-3px)}
+        .cta{background:var(--accent);padding:8px 14px;border-radius:10px;color:#02010a;font-weight:700;font-size:13px;text-decoration:none;box-shadow:0 6px 20px rgba(156,107,255,0.12)}
 
-    /* Main container */
-    .wrap{position:relative;z-index:10;width:min(1100px,94%);margin:120px auto 90px}
+        /* Main container */
+        .wrap{position:relative;z-index:10;width:min(1100px,94%);margin:120px auto 90px}
 
-    /* Hero */
-    .hero{display:grid;grid-template-columns:1fr 420px;gap:40px;align-items:center;margin-bottom:48px}
-    .hero-card{background:var(--panel);border-radius:16px;padding:28px;border:1px solid rgba(156,107,255,0.12);box-shadow:0 10px 40px rgba(2,2,8,0.6);position:relative;overflow:visible}
-    .name{font-family:"Orbitron",sans-serif;font-weight:800;font-size:42px;letter-spacing:0.6px;margin:0 0 6px;background:var(--accent);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .sub{color:var(--muted);margin-bottom:14px;font-weight:600}
-    .hero-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-    .chip{background:rgba(255,255,255,0.02);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);font-weight:600;font-size:13px;color:var(--muted)}
-    .hero-para{color:#cfe8ff;line-height:1.6;margin-bottom:18px}
-    .hero-actions{display:flex;gap:12px}
-    .btn{padding:10px 16px;border-radius:999px;border:none;font-weight:700;cursor:pointer;font-size:14px;letter-spacing:0.4px;transition:all .2s ease;text-decoration:none;display:inline-flex;align-items:center;gap:10px}
-    .btn-primary{background:var(--neon-cyan);color:#040312;box-shadow:0 8px 24px rgba(0,240,255,0.08)}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--neon-cyan)}
-    .btn-warning{background:var(--neon-red);color:white;box-shadow:0 8px 24px rgba(255,60,95,0.12)}
-
-    /* Visual stage (right) */
-    .card-visual{height:100%;display:flex;align-items:center;justify-content:center;position:relative;padding:20px}
-    .visual-stage{width:380px;height:420px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;position:relative;overflow:visible;box-shadow:0 20px 60px rgba(4,2,14,0.6)}
-
-    .cube{position:absolute;width:96px;height:96px;border-radius:10px;background: linear-gradient(145deg, rgba(156,107,255,0.18), rgba(0,240,255,0.06));border:1px solid rgba(156,107,255,0.08);backdrop-filter: blur(6px);display:flex;align-items:center;justify-content:center;transform-style: preserve-3d;box-shadow:0 14px 40px rgba(0,0,0,0.6);animation: floaty 6s ease-in-out infinite}
-    .cube .icon{font-size:26px;color:var(--neon-cyan);opacity:0.95}
-    .cube.small{width:68px;height:68px;border-radius:10px;animation-duration:5.6s}
-    .cube.left{left:20px;top:40px}
-    .cube.center{left:140px;top:90px}
-    .cube.right{right:18px;top:60px}
-    @keyframes floaty{0%{transform:translateY(0) rotateX(0) rotateY(0)}50%{transform:translateY(-18px) rotateX(8deg) rotateY(6deg)}100%{transform:translateY(0) rotateX(0) rotateY(0)}}
-    .spark{position:absolute;width:160px;height:2px;top:340px;left:110px;opacity:0.8;background: linear-gradient(90deg, rgba(156,107,255,0.0), rgba(156,107,255,0.7), rgba(0,240,255,0.3));transform-origin:left center;animation: slide 2.2s linear infinite}
-    @keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(160%)}}
-
-    /* sections */
-    section{margin-bottom:36px}
-    .section-title{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-    .section-title h2 {
-    font-family:"Orbitron",sans-serif;
-    font-weight:800;
-    margin:0;
-    font-size:20px;
-    background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
-    position:relative;
-    padding-bottom:6px; /* space for underline */
-}
-
-.section-title h2::after {
-  content:"";
-  position:absolute;
-  left:0;
-  bottom:0;
-  width:80px; /* underline length */
-  height:2px;
-  background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));
-  box-shadow:0 0 8px rgba(0,240,255,0.6);
-  border-radius:2px;
-}
+        /* Hero */
+        .hero{display:grid;grid-template-columns:1fr 420px;gap:40px;align-items:center;margin-bottom:48px}
+        .hero-card{background:var(--panel);border-radius:16px;padding:28px;border:1px solid rgba(156,107,255,0.12);box-shadow:0 10px 40px rgba(2,2,8,0.6);position:relative;overflow:visible}
+        .name{font-family:"Orbitron",sans-serif;font-weight:800;font-size:42px;letter-spacing:0.6px;margin:0 0 6px;background:var(--accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .sub{color:var(--muted);margin-bottom:14px;font-weight:600}
+        .hero-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+        .chip{background:rgba(255,255,255,0.02);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);font-weight:600;font-size:13px;color:var(--muted)}
+        .hero-para{color:#cfe8ff;line-height:1.6;margin-bottom:18px}
+        .hero-actions{display:flex;gap:12px}
+        .btn{padding:10px 16px;border-radius:999px;border:none;font-weight:700;cursor:pointer;font-size:14px;letter-spacing:0.4px;transition:all .2s ease;text-decoration:none;display:inline-flex;align-items:center;gap:10px}
+        .btn-primary{background:var(--neon-cyan);color:#040312;box-shadow:0 8px 24px rgba(0,240,255,0.08)}
+        .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--neon-cyan)}
+        .btn-warning{background:var(--neon-red);color:white;box-shadow:0 8px 24px rgba(255,60,95,0.12)}
+        .btn-premium{background:var(--premium-color);color:#02010a;box-shadow:0 8px 24px rgba(255,183,0,0.12); }
 
 
-    /* cards */
-    .card{background:var(--panel);border-radius:12px;padding:18px;border:1px solid var(--glass-border);box-shadow:0 8px 30px rgba(2,2,8,0.6);transition:transform .3s,box-shadow .3s}
-    .card:hover{transform:translateY(-8px);box-shadow:0 26px 60px rgba(0,0,0,0.6)}
-    .muted{color:var(--muted);font-size:13px}
-    .big{font-size:20px;font-weight:700;margin-bottom:6px;color:#eaf4ff}
-    .skills-list{display:flex;flex-wrap:wrap;gap:10px}
-    .pill{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);font-weight:600;font-size:13px;color:var(--muted)}
+        /* Visual stage (right) */
+        .card-visual{height:100%;display:flex;align-items:center;justify-content:center;position:relative;padding:20px}
+        .visual-stage{width:380px;height:420px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;position:relative;overflow:visible;box-shadow:0 20px 60px rgba(4,2,14,0.6)}
 
-    /* Input section */
-    .input-section{background:var(--panel);border-radius:12px;padding:18px;border:1px solid var(--glass-border);box-shadow:0 8px 30px rgba(2,2,8,0.6);margin-bottom:36px}
-    .tabs{display:flex;border-bottom:1px solid var(--glass-border);margin-bottom:1.5rem}
-    .tab{padding:0.8rem 1.5rem;cursor:pointer;font-weight:500;color:var(--gray);border-bottom:3px solid transparent}
-    .tab.active{color:var(--neon-cyan);border-bottom:3px solid var(--neon-cyan)}
-    .input-group{margin-bottom:1.5rem}
-    textarea{width:100%;min-height:150px;padding:1rem;border:1px solid var(--glass-border);border-radius:8px;font-size:1rem;resize:vertical;background:rgba(255,255,255,0.02);color:#e6eef8}
-    .or-divider{text-align:center;margin:1rem 0;color:var(--muted);position:relative}
-    .or-divider::before,.or-divider::after{content:"";position:absolute;top:50%;width:40%;height:1px;background-color:var(--glass-border)}
-    .or-divider::before{left:0}
-    .or-divider::after{right:0}
-    .file-upload{border:2px dashed var(--glass-border);border-radius:8px;padding:2rem;text-align:center;cursor:pointer;transition:border-color 0.3s}
-    .file-upload:hover{border-color:var(--neon-cyan)}
-    .file-upload p{color:var(--muted);margin-top:0.5rem}
+        .cube{position:absolute;width:96px;height:96px;border-radius:10px;background: linear-gradient(145deg, rgba(156,107,255,0.18), rgba(0,240,255,0.06));border:1px solid rgba(156,107,255,0.08);backdrop-filter: blur(6px);display:flex;align-items:center;justify-content:center;transform-style: preserve-3d;box-shadow:0 14px 40px rgba(0,0,0,0.6);animation: floaty 6s ease-in-out infinite}
+        .cube .icon{font-size:26px;color:var(--neon-cyan);opacity:0.95}
+        .cube.small{width:68px;height:68px;border-radius:10px;animation-duration:5.6s}
+        .cube.left{left:20px;top:40px}
+        .cube.center{left:140px;top:90px}
+        .cube.right{right:18px;top:60px}
+        @keyframes floaty{0%{transform:translateY(0) rotateX(0) rotateY(0)}50%{transform:translateY(-18px) rotateX(8deg) rotateY(6deg)}100%{transform:translateY(0) rotateX(0) rotateY(0)}}
+        .spark{position:absolute;width:160px;height:2px;top:340px;left:110px;opacity:0.8;background: linear-gradient(90deg, rgba(156,107,255,0.0), rgba(156,107,255,0.7), rgba(0,240,255,0.3));transform-origin:left center;animation: slide 2.2s linear infinite}
+        @keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(160%)}}
 
-    /* Results section */
-    .results-section{display:none;background:var(--panel);border-radius:12px;padding:18px;border:1px solid var(--glass-border);box-shadow:0 8px 30px rgba(2,2,8,0.6);margin-bottom:36px}
-    .result-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
-    .verdict-badge{padding:0.5rem 1rem;border-radius:50px;font-weight:600}
-    .verdict-true{background-color:rgba(0,255,157,0.1);color:var(--neon-green)}
-    .verdict-misleading{background-color:rgba(251,188,5,0.1);color:var(--warning)}
-    .verdict-false{background-color:rgba(234,67,53,0.1);color:var(--neon-red)}
-    .confidence-meter{width:100%;height:12px;background-color:rgba(255,255,255,0.05);border-radius:50px;margin:1rem 0;overflow:hidden}
-    .confidence-level{height:100%;border-radius:50px}
-    .explanation{background:rgba(255,255,255,0.02);padding:1.5rem;border-radius:8px;margin:1.5rem 0}
-    .explanation h3{margin-bottom:1rem;color:#eaf4ff}
-    .manipulation-techniques{margin:1.5rem 0}
-    .technique{display:flex;align-items:center;gap:1rem;padding:1rem;background:rgba(255,255,255,0.02);border-radius:8px;margin-bottom:0.5rem}
-    .technique-icon{font-size:1.5rem;color:var(--neon-red)}
+        /* sections */
+        section{margin-bottom:36px}
+        .section-title{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+        .section-title h2 {
+            font-family:"Orbitron",sans-serif;
+            font-weight:800;
+            margin:0;
+            font-size:20px;
+            background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));
+            -webkit-background-clip:text;
+            background-clip:text;
+            color:transparent;
+            position:relative;
+            padding-bottom:6px; /* space for underline */
+        }
+        
+        .section-title h2::after {
+            content:"";
+            position:absolute;
+            left:0;
+            bottom:0;
+            width:80px; /* Animate to this width */
+            height:2px;
+            background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));
+            box-shadow:0 0 8px rgba(0,240,255,0.6);
+            border-radius:2px;
+            animation: line-move 3s infinite ease-in-out;
+        }
+        
+        @keyframes line-move {
+            0% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(80px); opacity: 0.5; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
 
-    /* projects */
-    .project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .project{padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(156,107,255,0.06)}
-    .project h3{margin:0 0 6px;font-family:"Orbitron",sans-serif;font-size:16px;color:var(--neon-cyan)}
-    .project p{color:#cde3ff;font-size:13px;line-height:1.45}
-    .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .tag{font-size:12px;padding:6px 8px;border-radius:8px;background:rgba(0,240,255,0.04);color:var(--neon-cyan);border:1px solid rgba(0,240,255,0.06)}
+        /* cards */
+        .card{background:var(--panel);border-radius:12px;padding:18px;border:1px solid var(--glass-border);box-shadow:0 8px 30px rgba(2,2,8,0.6);transition:transform .3s,box-shadow .3s}
+        .card:hover{transform:translateY(-8px);box-shadow:0 26px 60px rgba(0,0,0,0.6)}
+        .muted{color:var(--muted);font-size:13px}
+        .big{font-size:20px;font-weight:700;margin-bottom:6px;color:#eaf4ff}
+        .skills-list{display:flex;flex-wrap:wrap;gap:10px}
+        .pill{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);font-weight:600;font-size:13px;color:var(--muted)}
 
-    .vertical{display:flex;flex-direction:column;gap:12px}
+        /* Input section */
+        .input-section{background:var(--panel);border-radius:12px;padding:18px;border:1px solid var(--glass-border);box-shadow:0 8px 30px rgba(2,2,8,0.6);margin-bottom:36px}
+        .tabs{display:flex;border-bottom:1px solid var(--glass-border);margin-bottom:1.5rem}
+        .tab{padding:0.8rem 1.5rem;cursor:pointer;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;transition:all .25s ease}
+        .tab.active{color:var(--neon-cyan);border-bottom:3px solid var(--neon-cyan)}
+        .input-group{margin-bottom:1.5rem}
+        textarea{width:100%;min-height:150px;padding:1rem;border:1px solid var(--glass-border);border-radius:8px;font-size:1rem;resize:vertical;background:rgba(255,255,255,0.02);color:#e6eef8}
+        .or-divider{text-align:center;margin:1rem 0;color:var(--muted);position:relative}
+        .or-divider::before,.or-divider::after{content:"";position:absolute;top:50%;width:40%;height:1px;background-color:var(--glass-border)}
+        .or-divider::before{left:0}
+        .or-divider::after{right:0}
+        .file-upload{border:2px dashed var(--glass-border);border-radius:8px;padding:2rem;text-align:center;cursor:pointer;transition:border-color 0.3s}
+        .file-upload:hover{border-color:var(--neon-cyan)}
+        .file-upload p{color:var(--muted);margin-top:0.5rem}
 
-    /* contact */
-    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-    .contact-info{display:flex;flex-direction:column;gap:14px}
-    .icon-round{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
-    .contact-row{display:flex;gap:12px;align-items:center}
+        /* Results section */
+        .results-section{display:none;background:var(--panel);border-radius:12px;padding:18px;border:1px solid var(--glass-border);box-shadow:0 8px 30px rgba(2,2,8,0.6);margin-bottom:36px}
+        .result-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
+        .verdict-badge{padding:0.5rem 1rem;border-radius:50px;font-weight:600}
+        .verdict-true{background-color:rgba(0,255,157,0.1);color:var(--neon-green)}
+        .verdict-misleading{background-color:rgba(251,188,5,0.1);color:var(--warning)}
+        .verdict-false{background-color:rgba(234,67,53,0.1);color:var(--neon-red)}
+        .confidence-meter{width:100%;height:12px;background-color:rgba(255,255,255,0.05);border-radius:50px;margin:1rem 0;overflow:hidden}
+        .confidence-level{height:100%;border-radius:50px}
+        .explanation{background:rgba(255,255,255,0.02);padding:1.5rem;border-radius:8px;margin:1.5rem 0}
+        .explanation h3{margin-bottom:1rem;color:#eaf4ff}
+        .manipulation-techniques{margin:1.5rem 0}
+        .technique{display:flex;align-items:center;gap:1rem;padding:1rem;background:rgba(255,255,255,0.02);border-radius:8px;margin-bottom:0.5rem}
+        .technique-icon{font-size:1.5rem;color:var(--neon-red)}
 
-    footer{margin-top:36px;padding:24px;border-radius:10px;text-align:center;color:var(--muted);border:1px solid rgba(255,255,255,0.02)}
+        /* plans */
+        .plan-comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
 
-    /* responsive */
-    @media (max-width:1100px){.hero{grid-template-columns:1fr 360px}.project-grid{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
-    @media (max-width:800px){
-      header{left:12px;right:12px;transform:none}
-      .wrap{margin-top:140px;width:94%}
-      .hero{grid-template-columns:1fr;gap:18px}
-      .visual-stage{width:100%;height:240px}
-      .project-grid{grid-template-columns:1fr}
-      .contact-grid{grid-template-columns:1fr}
-    }
+        .plan-card {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 30px rgba(2, 2, 8, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .plan-card h3 {
+            font-size: 24px;
+            font-family: "Orbitron", sans-serif;
+            font-weight: 800;
+            background: var(--accent);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 12px;
+        }
 
-    /* reveal */
-    .reveal{opacity:0;transform:translateY(12px);transition:all .6s cubic-bezier(.2,.9,.3,1)}
-    .reveal.show{opacity:1;transform:translateY(0)}
-  </style>
+        .plan-card .price {
+            text-align: center;
+            font-size: 18px;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+        
+        .plan-card ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .plan-card li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            color: #eaf4ff;
+        }
+
+        .plan-card .icon-ok { color: var(--neon-green); }
+        .plan-card .icon-nok { color: var(--neon-red); }
+
+        .plan-card .btn {
+            margin-top: auto;
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+        }
+
+        /* projects */
+        .project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+        .project{padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(156,107,255,0.06)}
+        .project h3{margin:0 0 6px;font-family:"Orbitron",sans-serif;font-size:16px;color:var(--neon-cyan)}
+        .project p{color:#cde3ff;font-size:13px;line-height:1.45}
+        .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+        .tag{font-size:12px;padding:6px 8px;border-radius:8px;background:rgba(0,240,255,0.04);color:var(--neon-cyan);border:1px solid rgba(0,240,255,0.06)}
+
+        .vertical{display:flex;flex-direction:column;gap:12px}
+
+        /* contact */
+        .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        .contact-info{display:flex;flex-direction:column;gap:14px}
+        .icon-round{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
+        .contact-row{display:flex;gap:12px;align-items:center}
+
+        footer{margin-top:36px;padding:24px;border-radius:10px;text-align:center;color:var(--muted);border:1px solid rgba(255,255,255,0.02)}
+        footer a { color: var(--neon-cyan); text-decoration: none; }
+        footer p { font-size: 13px; margin: 4px 0; }
+
+        /* Custom styles for AI capabilities icons and stats */
+        .ai-capability-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .ai-capability-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .ai-capability-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .ai-capability-card .icon-bg {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(156,107,255,0.15), rgba(0,240,255,0.08));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .ai-capability-card .icon {
+            font-size: 28px;
+            color: var(--neon-cyan);
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .ai-capability-card h3 {
+            font-family: "Inter", sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            color: #eaf4ff;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            text-align: center;
+            margin-top: 48px;
+        }
+
+        .stat-item h3 {
+            font-family: "Orbitron", sans-serif;
+            font-weight: 800;
+            font-size: 38px;
+            margin: 0;
+            background: var(--accent);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+
+        .stat-item p {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 8px;
+        }
+        
+        /* Educational and Resources card style */
+        .edu-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .edu-card {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 30px rgba(2, 2, 8, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .edu-card h3 {
+            font-size: 18px;
+            font-family: "Orbitron", sans-serif;
+            font-weight: 800;
+            color: #eaf4ff;
+            margin-bottom: 8px;
+        }
+
+        .edu-card p {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .edu-card .icon-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--neon-cyan);
+        }
+
+        .edu-card .icon-text .fas {
+            font-size: 16px;
+        }
+
+        .edu-card .btn {
+            margin-top: auto;
+            align-self: flex-start;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .resource-card {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 30px rgba(2, 2, 8, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .resource-card .icon-bg {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(156,107,255,0.15), rgba(0,240,255,0.08));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .resource-card .icon {
+            font-size: 28px;
+            color: var(--neon-cyan);
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .resource-card h3 {
+            font-family: "Inter", sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            color: #eaf4ff;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .resource-card p {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Call-to-action section */
+        .final-cta {
+            background: linear-gradient(135deg, rgba(156, 107, 255, 0.2), rgba(0, 240, 255, 0.1));
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 48px;
+            text-align: center;
+            margin: 48px auto;
+            box-shadow: 0 8px 30px rgba(2, 2, 8, 0.6);
+        }
+
+        .final-cta h2 {
+            font-family: "Orbitron", sans-serif;
+            font-weight: 800;
+            font-size: 32px;
+            background: var(--accent);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .final-cta p {
+            font-size: 16px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        .final-cta .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: transparent;
+            padding: 3rem 0;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .footer-logo h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--accent);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .footer-logo .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--neon-purple);
+            box-shadow: 0 0 8px var(--neon-purple);
+        }
+
+        .footer-main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 2rem;
+            padding: 0 20px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .footer-section p, .footer-section a, .footer-bottom-text {
+            font-size: 0.9rem;
+            color: #a0aec0;
+            line-height: 1.6;
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            margin-top: 1rem;
+            max-width: 300px;
+        }
+
+        .newsletter-form input {
+            border: 1px solid #4a5568;
+            background: #2d3748;
+            color: #fff;
+            padding: 0.75rem;
+            border-radius: 8px 0 0 8px;
+            flex-grow: 1;
+            font-size: 0.9rem;
+        }
+
+        .newsletter-form button {
+            background-color: var(--neon-purple);
+            border: none;
+            padding: 0.75rem 1rem;
+            color: #fff;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+        }
+        
+        .newsletter-form button:hover {
+            background-color: #805ad5;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 1px solid #2d3748;
+            padding-top: 1.5rem;
+            color: #a0aec0;
+            font-size: 0.8rem;
+        }
+
+
+        /* responsive */
+        @media (max-width:1100px){
+            .hero{grid-template-columns:1fr 360px}
+            .project-grid{grid-template-columns:repeat(2,1fr)}
+            .ai-capability-grid { grid-template-columns: repeat(3, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .edu-card-grid { grid-template-columns: repeat(2, 1fr); }
+            .resources-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-main-content { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width:800px){
+            header{left:12px;right:12px;transform:none}
+            .wrap{margin-top:140px;width:94%}
+            .hero{grid-template-columns:1fr;gap:18px}
+            .visual-stage{width:100%;height:240px}
+            .project-grid{grid-template-columns:1fr}
+            .contact-grid{grid-template-columns:1fr}
+            .plan-comparison-grid { grid-template-columns: 1fr; }
+            .hero-actions { flex-direction: column; gap: 10px; }
+            .section-title { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .ai-capability-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-item h3 { font-size: 32px; }
+            .edu-card-grid { grid-template-columns: 1fr; }
+            .resources-grid { grid-template-columns: 1fr; }
+            .footer-main-content { grid-template-columns: 1fr; }
+        }
+
+        /* reveal */
+        .reveal{opacity:0;transform:translateY(12px);transition:all .6s cubic-bezier(.2,.9,.3,1)}
+        .reveal.show{opacity:1;transform:translateY(0)}
+    </style>
 </head>
 <body>
-  <!-- Canvas background -->
-  <canvas id="bg-canvas"></canvas>
-  <div class="grid-overlay" aria-hidden="true"></div>
+    <canvas id="bg-canvas"></canvas>
+    <div class="grid-overlay" aria-hidden="true"></div>
 
-  <!-- Header -->
-  <header>
-    <div class="brand">
-      <div class="logo"><span class="dot"></span>TruthGuard</div>
-      <div style="font-size:13px;color:var(--muted);margin-top:2px">AI-Powered Misinformation Detection</div>
-    </div>
-
-    <nav>
-      <ul>
-        <li><a href="#analyzer">Analyzer</a></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#how-it-works">How It Works</a></li>
-        <li><a href="#education">Education</a></li>
-        <li><a href="#about">About</a></li>
-      </ul>
-    </nav>
-
-    <a class="cta" href="#analyzer">Try Now</a>
-  </header>
-
-  <main class="wrap">
-    <!-- HERO -->
-    <section class="hero">
-      <div class="hero-card reveal" id="hero-left">
-        <h1 class="name">TRUTHGUARD</h1>
-        <div class="sub">AI-Powered Misinformation Detection & Education Platform</div>
-
-        <div class="hero-meta">
-          <div class="chip">Multi-Format Analysis</div>
-          <div class="chip">Real-Time Verification</div>
-          <div class="chip">Educational Insights</div>
+    <header>
+        <div class="brand">
+            <div class="logo"><span class="dot"></span>TruthGuard</div>
         </div>
 
-        <p class="hero-para">
-          TruthGuard helps you identify potential misinformation and explains why content might be misleading, 
-          empowering you to become a more critical consumer of information. Our AI analyzes text, images, and URLs 
-          to detect manipulation techniques and provide context about information sources.
-        </p>
+        <nav>
+            <ul>
+                <li><a href="#analyzer">Analyzer</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#plans">Plans</a></li>
+                <li><a href="#ai-capabilities">AI Capabilities</a></li>
+                <li><a href="#education">Education</a></li>
+                <li><a href="#resources">Resources</a></li>
+            </ul>
+        </nav>
 
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#analyzer"><i class="fas fa-search"></i> Analyze Content</a>
-          <a class="btn btn-ghost" href="#education"><i class="fas fa-graduation-cap"></i> Learn More</a>
-        </div>
+        <a class="cta" href="#analyzer">Try Now</a>
+    </header>
 
-        <div style="margin-top:16px;color:var(--muted);font-size:13px">
-          <strong>Powered by:</strong> Google Cloud AI • BERT • Neural Networks
-        </div>
-      </div>
+    <main class="wrap">
+        <section class="hero">
+            <div class="hero-card reveal" id="hero-left">
+                <h1 class="name">TRUTHGUARD</h1>
+                <div class="sub">AI-Powered Misinformation Detection & Education Platform</div>
 
-      <!-- Visual stage -->
-      <div class="card-visual reveal" id="hero-right">
-        <div class="visual-stage" role="img" aria-label="abstract 3d data cubes">
-          <div class="cube left small"><i class="fas fa-font icon"></i></div>
-          <div class="cube center"><i class="fas fa-image icon"></i></div>
-          <div class="cube right small"><i class="fas fa-link icon"></i></div>
-          <div class="spark" aria-hidden="true"></div>
-        </div>
-      </div>
-    </section>
+                <div class="hero-meta">
+                    <div class="chip">Multi-Format Analysis</div>
+                    <div class="chip">Real-Time Verification</div>
+                    <div class="chip">Educational Insights</div>
+                </div>
 
-    <!-- ANALYZER -->
-    <section id="analyzer" class="reveal">
-      <div class="section-title">
-        <h2>Content Analyzer</h2>
-        <div style="color:var(--muted);font-weight:600">Verify text, images or URLs</div>
-      </div>
+                <p class="hero-para">
+                    AI-powered platform that detects potential misinformation and educates users on identifying credible, trustworthy content across all formats.
+                </p>
 
-      <div class="input-section">
-        <div class="tabs">
-          <div class="tab active">Text Analysis</div>
-          <div class="tab">Image Analysis</div>
-          <div class="tab">URL Analysis</div>
-        </div>
-        
-        <div class="input-group">
-          <textarea placeholder="Paste text you want to verify here..."></textarea>
-        </div>
-        
-        <div class="or-divider">OR</div>
-        
-        <div class="file-upload">
-          <span class="btn btn-ghost"><i class="fas fa-upload"></i> Upload Image</span>
-          <p>Supported formats: JPG, PNG, WEBP</p>
-        </div>
-        
-        <button class="btn btn-primary btn-analyze"><i class="fas fa-search"></i> Analyze Content</button>
-      </div>
-      
-      <div class="results-section">
-        <div class="result-header">
-          <h2>Analysis Result</h2>
-          <span class="verdict-badge verdict-misleading">Potentially Misleading</span>
-        </div>
-        
-        <p>Our AI analysis indicates this content contains elements that may be misleading or lack context.</p>
-        
-        <div>
-          <p>Confidence Level: 87%</p>
-          <div class="confidence-meter">
-            <div class="confidence-level" style="width: 87%; background: var(--accent);"></div>
-          </div>
-        </div>
-        
-        <div class="explanation">
-          <h3><i class="fas fa-lightbulb"></i> Why This Might Be Misleading</h3>
-          <p>This content uses emotional language to trigger strong reactions without providing verifiable evidence. The claims reference a study that doesn't actually exist, and the statistics presented don't align with official data from recognized institutions.</p>
-        </div>
-        
-        <div class="manipulation-techniques">
-          <h3>Manipulation Techniques Identified</h3>
-          <div class="technique">
-            <div class="technique-icon"><i class="fas fa-exclamation-triangle"></i></div>
-            <div>
-              <h4>Appeal to Emotion</h4>
-              <p>Uses fear-provoking language to bypass critical thinking</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#analyzer"><i class="fas fa-search"></i> Analyze Content Now</a>
+                    <a class="btn btn-ghost" href="#how-it-works"><i class="fas fa-question-circle"></i> Learn How It Works</a>
+                </div>
+
+                <div style="margin-top:16px;color:var(--muted);font-size:13px">
+                    <strong>Powered by:</strong> Google Cloud AI • BERT Neural Networks • Real-Time Processing
+                </div>
             </div>
-          </div>
-          <div class="technique">
-            <div class="technique-icon"><i class="fas fa-exclamation-triangle"></i></div>
-            <div>
-              <h4>Fabricated Evidence</h4>
-              <p>References studies or experts that don't exist</p>
+
+            <div class="card-visual reveal" id="hero-right">
+                <div class="visual-stage" role="img" aria-label="abstract 3d data cubes">
+                    <div class="cube left small"><i class="fas fa-font icon"></i></div>
+                    <div class="cube center"><i class="fas fa-image icon"></i></div>
+                    <div class="cube right small"><i class="fas fa-link icon"></i></div>
+                    <div class="spark" aria-hidden="true"></div>
+                </div>
             </div>
-          </div>
-          <div class="technique">
-            <div class="technique-icon"><i class="fas fa-exclamation-triangle"></i></div>
-            <div>
-              <h4>Out-of-Context Information</h4>
-              <p>Presents factual information in a misleading way</p>
+        </section>
+
+        <section id="analyzer" class="reveal">
+            <div class="section-title">
+                <h2>Content Analyzer</h2>
+                <div style="color:var(--muted);font-weight:600">Verify text, images, or URLs instantly</div>
             </div>
-          </div>
-        </div>
+
+            <div class="input-section">
+                <div class="tabs">
+                    <div class="tab active">Text Analysis</div>
+                    <div class="tab">Image Analysis</div>
+                    <div class="tab">URL Analysis</div>
+                </div>
+                
+                <div class="input-group">
+                    <textarea placeholder="Enter the content you'd like us to analyze for potential misinformation..."></textarea>
+                </div>
+                
+                <div class="or-divider">OR</div>
+                
+                <div class="file-upload">
+                    <span class="btn btn-ghost"><i class="fas fa-upload"></i> Upload Image</span>
+                    <p>Supported formats: JPG, PNG, WEBP</p>
+                </div>
+                
+                <button class="btn btn-primary btn-analyze"><i class="fas fa-search"></i> Analyze Content</button>
+            </div>
+        </section>
+
+        <section id="features" class="reveal">
+            <div class="section-title">
+                <h2>Why Choose TruthGuard?</h2>
+                <div style="color:var(--muted);font-weight:600">Beyond simple fact-checking</div>
+            </div>
+
+            <div class="project-grid">
+                <div class="project card">
+                    <h3>Multi-Format Analysis</h3>
+                    <p>Analyze text, images, and URLs with advanced AI that understands context, sentiment, and manipulation techniques.</p>
+                </div>
+
+                <div class="project card">
+                    <h3>Real-Time Verification</h3>
+                    <p>Instant cross-referencing with trusted sources and fact-checking databases for immediate credibility assessment.</p>
+                </div>
+
+                <div class="project card">
+                    <h3>Educational Insights</h3>
+                    <p>Learn why content might be misleading with detailed explanations and tips for future verification.</p>
+                </div>
+            </div>
+        </section>
         
-        <div class="suggested-actions">
-          <h3>Recommended Next Steps</h3>
-          <ul style="color:#cfe8ff; margin-left: 20px;">
-            <li>Check these verified sources for more information</li>
-            <li>Learn about emotional manipulation techniques</li>
-            <li>Share this analysis to help others identify similar misinformation</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- FEATURES -->
-    <section id="features" class="reveal">
-      <div class="section-title">
-        <h2>Unique Features</h2>
-        <div style="color:var(--muted);font-weight:600">Beyond simple fact-checking</div>
-      </div>
-
-      <div class="project-grid">
-        <div class="project card">
-          <h3>Multi-Format Analysis</h3>
-          <p>Analyze text, images, and URLs to identify potential misinformation across different content types and platforms.</p>
-          <div class="tags" style="margin-top:10px">
-            <span class="tag">Text</span>
-            <span class="tag">Images</span>
-            <span class="tag">URLs</span>
-          </div>
-        </div>
-
-        <div class="project card">
-          <h3>Educational Explanations</h3>
-          <p>Get detailed explanations about why content might be misleading, not just a true/false rating.</p>
-          <div class="tags" style="margin-top:10px">
-            <span class="tag">Context</span>
-            <span class="tag">Learning</span>
-            <span class="tag">Insights</span>
-          </div>
-        </div>
-
-        <div class="project card">
-          <h3>Manipulation Technique ID</h3>
-          <p>Learn about specific manipulation techniques used in content to become more resilient to future misinformation.</p>
-          <div class="tags" style="margin-top:10px">
-            <span class="tag">Detection</span>
-            <span class="tag">Patterns</span>
-            <span class="tag">Analysis</span>
-          </div>
-        </div>
-
-        <div class="project card">
-          <h3>Source Reliability Scoring</h3>
-          <p>See trust scores for information sources based on historical accuracy and transparency metrics.</p>
-          <div class="tags" style="margin-top:10px">
-            <span class="tag">Rating</span>
-            <span class="tag">Trust</span>
-            <span class="tag">History</span>
-          </div>
-        </div>
-
-        <div class="project card">
-          <h3>Interactive Learning</h3>
-          <p>Test your skills with interactive challenges that teach you how to spot misinformation techniques.</p>
-          <div class="tags" style="margin-top:10px">
-            <span class="tag">Games</span>
-            <span class="tag">Quizzes</span>
-            <span class="tag">Training</span>
-          </div>
-        </div>
-
-        <div class="project card">
-          <h3>Regional Tracking</h3>
-          <p>Stay informed about trending misinformation in your region with localized alerts and patterns.</p>
-          <div class="tags" style="margin-top:10px">
-            <span class="tag">Local</span>
-            <span class="tag">Trends</span>
-            <span class="tag">Alerts</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- HOW IT WORKS -->
-    <section id="how-it-works" class="reveal">
-      <div class="section-title">
-        <h2>How It Works</h2>
-        <div style="color:var(--muted);font-weight:600">Powered by Google Cloud AI</div>
-      </div>
-
-      <div class="grid">
-        <div class="card">
-          <div class="big">Advanced AI Analysis</div>
-          <div class="muted">Multi-layered detection system</div>
-          <p style="color:#cfe8ff;margin-top:8px">
-            TruthGuard uses Google Cloud's AI platforms including Natural Language API, Vision AI, and custom models 
-            trained on diverse misinformation patterns. Our system analyzes content through multiple layers including 
-            semantic analysis, sentiment manipulation detection, source credibility assessment, and cross-referencing 
-            with verified databases.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="big">Real-Time Verification</div>
-          <div class="muted">Instant results with explanations</div>
-          <p style="color:#cfe8ff;margin-top:8px">
-            Our system processes content in real-time, providing not just verification results but detailed explanations 
-            of why content might be misleading. We identify specific manipulation techniques and provide context about 
-            the sources and claims being made.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- EDUCATION -->
-    <section id="education" class="reveal">
-      <div class="section-title">
-        <h2>Educational Resources</h2>
-        <div style="color:var(--muted);font-weight:600">Learn to identify misinformation</div>
-      </div>
-
-      <div class="grid">
-        <div class="card vertical">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div class="big">Manipulation Technique Library</div>
-              <div class="muted">Learn how misinformation works</div>
+        <section id="plans" class="reveal">
+            <div class="section-title">
+                <h2>Free vs. Premium Plans</h2>
+                <div style="color:var(--muted);font-weight:600">Compare our plans to find the right level of protection</div>
             </div>
-          </div>
-          <div style="margin-top:12px" class="skills-list">
-            <span class="pill">Emotional Manipulation</span>
-            <span class="pill">Fabricated Evidence</span>
-            <span class="pill">Out-of-Context</span>
-            <span class="pill">False Authority</span>
-            <span class="pill">Conspiracy Theories</span>
-            <span class="pill">Deepfakes</span>
-          </div>
-        </div>
+            
+            <div class="plan-comparison-grid">
+                <div class="plan-card">
+                    <h3>Free Plan</h3>
+                    <div class="price">Always Free</div>
+                    <ul>
+                        <li><i class="fas fa-check-circle icon-ok"></i> 10 daily text/URL analyses</li>
+                        <li><i class="fas fa-check-circle icon-ok"></i> Basic educational insights</li>
+                        <li><i class="fas fa-check-circle icon-ok"></i> Limited source credibility scoring</li>
+                        <li><i class="fas fa-times-circle icon-nok"></i> Image/Deepfake analysis</li>
+                        <li><i class="fas fa-times-circle icon-nok"></i> Real-time trend analysis</li>
+                        <li><i class="fas fa-times-circle icon-nok"></i> API access for developers</li>
+                    </ul>
+                    <a href="#" class="btn btn-ghost">Start Free</a>
+                </div>
+                <div class="plan-card">
+                    <h3>Premium Plan</h3>
+                    <div class="price">$9.99/month</div>
+                    <ul>
+                        <li><i class="fas fa-check-circle icon-ok"></i> Unlimited text/URL analyses</li>
+                        <li><i class="fas fa-check-circle icon-ok"></i> In-depth educational insights</li>
+                        <li><i class="fas fa-check-circle icon-ok"></i> Full source credibility scoring</li>
+                        <li><i class="fas fa-check-circle icon-ok"></i> Image/Deepfake analysis</li>
+                        <li><i class="fas fa-check-circle icon-ok"></i> Real-time trend analysis</li>
+                        <li><i class="fas fa-check-circle icon-ok"></i> API access for developers</li>
+                    </ul>
+                    <a href="#" class="btn btn-premium">Go Premium</a>
+                </div>
+            </div>
+        </section>
 
-        <div class="card vertical">
-          <div class="big">Interactive Learning Games</div>
-          <div class="muted">Test your detection skills</div>
-          <p style="color:#cfe8ff">We've developed interactive challenges that let you practice identifying misinformation techniques in a safe environment. These games help build critical thinking skills and pattern recognition for spotting manipulative content.</p>
-          <a class="btn btn-ghost" style="align-self: flex-start; margin-top: 12px;" href="#">Try Games</a>
-        </div>
-      </div>
-    </section>
 
-    <!-- ABOUT -->
-    <section id="about" class="reveal">
-      <div class="section-title">
-        <h2>About TruthGuard</h2>
-        <div style="color:var(--muted);font-weight:600">Our mission</div>
-      </div>
+        <section id="ai-capabilities" class="reveal">
+            <div class="section-title">
+                <h2>Advanced AI Capabilities</h2>
+                <div style="color:var(--muted);font-weight:600">Powered by cutting-edge machine learning</div>
+            </div>
 
-      <div class="grid">
-        <div class="card">
-          <div class="big">Our Mission</div>
-          <div class="muted">Combatting misinformation through education</div>
-          <p style="color:#cfe8ff;margin-top:8px">
-            TruthGuard was created to address the growing challenge of misinformation in digital spaces. 
-            Unlike traditional fact-checking services, we focus not just on verifying claims but on educating 
-            users about how misinformation works, empowering them to become more critical consumers of information.
-          </p>
-        </div>
+            <div class="ai-capability-grid">
+                <div class="ai-capability-card">
+                    <div class="icon-bg"><i class="fas fa-eye icon"></i></div>
+                    <h3>Deepfake Detection</h3>
+                </div>
+                <div class="ai-capability-card">
+                    <div class="icon-bg"><i class="fas fa-globe icon"></i></div>
+                    <h3>Source Credibility Scoring</h3>
+                </div>
+                <div class="ai-capability-card">
+                    <div class="icon-bg"><i class="fas fa-users icon"></i></div>
+                    <h3>Social Proof Analysis</h3>
+                </div>
+                <div class="ai-capability-card">
+                    <div class="icon-bg"><i class="fas fa-bolt icon"></i></div>
+                    <h3>Bias Detection</h3>
+                </div>
+                <div class="ai-capability-card">
+                    <div class="icon-bg"><i class="fas fa-clock icon"></i></div>
+                    <h3>Temporal Verification</h3>
+                </div>
+                <div class="ai-capability-card">
+                    <div class="icon-bg"><i class="fas fa-chart-line icon"></i></div>
+                    <h3>Trend Analysis</h3>
+                </div>
+                <div class="ai-capability-card">
+                    <div class="icon-bg"><i class="fas fa-arrows-alt-h icon"></i></div>
+                    <h3>Fact Cross-Reference</h3>
+                </div>
+                <div class="ai-capability-card">
+                    <div class="icon-bg"><i class="fas fa-brain icon"></i></div>
+                    <h3>Context Understanding</h3>
+                </div>
+            </div>
 
-        <div class="card">
-          <div class="big">Technology</div>
-          <div class="muted">Powered by Google Cloud AI</div>
-          <p style="color:#cfe8ff;margin-top:8px">
-            Our platform leverages Google Cloud's advanced AI capabilities including Natural Language Processing, 
-            Computer Vision, and custom machine learning models trained on diverse datasets of verified and 
-            misleading information patterns.
-          </p>
-        </div>
-      </div>
-    </section>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>99.2%</h3>
+                    <p>Detection Accuracy</p>
+                </div>
+                <div class="stat-item">
+                    <h3>&lt;2s</h3>
+                    <p>Analysis Speed</p>
+                </div>
+                <div class="stat-item">
+                    <h3>1M+</h3>
+                    <p>Content Analyzed</p>
+                </div>
+                <div class="stat-item">
+                    <h3>50+</h3>
+                    <p>Source Databases</p>
+                </div>
+            </div>
+        </section>
 
-    <footer>
-      <div style="font-weight:700;color:var(--neon-purple)">TruthGuard — AI-Powered Misinformation Detection</div>
-      <div style="margin-top:8px">Built with ♥ • © 2023 • <a href="#" style="color:var(--neon-cyan)">Privacy Policy</a></div>
-    </footer>
-  </main>
+        <section id="education" class="reveal">
+            <div class="section-title">
+                <h2>Educational Insights</h2>
+                <div style="color:var(--muted);font-weight:600">Beyond detection, we empower you with the knowledge and skills to become a critical consumer of information in the digital age.</div>
+            </div>
 
-  <script>
-    /* Canvas particle background (lightweight) */
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d', { alpha: true });
-    let w = canvas.width = innerWidth;
-    let h = canvas.height = innerHeight;
-    const particles = [];
-    const PARTICLE_COUNT = Math.floor(Math.min(160, (w*h)/10000));
+            <div class="edu-card-grid">
+                <div class="edu-card card">
+                    <div class="icon-text"><i class="fas fa-eye"></i> Visual Manipulation Detection</div>
+                    <h3>What you'll learn:</h3>
+                    <ul style="color:var(--muted); margin-left: 20px;">
+                        <li>Deepfake indicators</li>
+                        <li>Reverse image search</li>
+                        <li>Metadata analysis</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Start Learning</a>
+                </div>
+                
+                <div class="edu-card card">
+                    <div class="icon-text"><i class="fas fa-star-half-alt"></i> Source Credibility Assessment</div>
+                    <h3>What you'll learn:</h3>
+                    <ul style="color:var(--muted); margin-left: 20px;">
+                        <li>Authority indicators</li>
+                        <li>Bias detection</li>
+                        <li>Publication patterns</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Start Learning</a>
+                </div>
+                
+                <div class="edu-card card">
+                    <div class="icon-text"><i class="fas fa-project-diagram"></i> Context & Trend Analysis</div>
+                    <h3>What you'll learn:</h3>
+                    <ul style="color:var(--muted); margin-left: 20px;">
+                        <li>Information cascades</li>
+                        <li>Echo chambers</li>
+                        <li>Viral mechanics</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Start Learning</a>
+                </div>
+            </div>
+        </section>
+        
+        <section id="resources" class="reveal">
+            <div class="section-title">
+                <h2>Additional Resources</h2>
+                <div style="color:var(--muted);font-weight:600">Comprehensive tools and community support to enhance your digital literacy journey.</div>
+            </div>
 
-    function rand(min, max){ return Math.random()*(max-min)+min }
-    function resize(){ w = canvas.width = innerWidth; h = canvas.height = innerHeight; initParticles(); }
-    addEventListener('resize', resize);
+            <div class="resources-grid">
+                <div class="resource-card card">
+                    <div class="icon-bg"><i class="fas fa-book icon"></i></div>
+                    <h3>The Misinformation Playbook</h3>
+                    <p>Step-by-step guide to identifying common misinformation tactics</p>
+                </div>
+                
+                <div class="resource-card card">
+                    <div class="icon-bg"><i class="fas fa-video icon"></i></div>
+                    <h3>Real-World Case Studies</h3>
+                    <p>Analyze famous misinformation campaigns and their detection</p>
+                </div>
+                
+                <div class="resource-card card">
+                    <div class="icon-bg"><i class="fas fa-user-group icon"></i></div>
+                    <h3>Expert Network</h3>
+                    <p>Connect with fact-checkers and digital literacy experts</p>
+                </div>
+                
+                <div class="resource-card card">
+                    <div class="icon-bg"><i class="fas fa-certificate icon"></i></div>
+                    <h3>Digital Literacy Badge</h3>
+                    <p>Earn credentials in misinformation detection skills</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="#" class="btn btn-primary">Explore All Resources <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </section>
 
-    class P {
-      constructor(){ this.reset(); }
-      reset(){
-        this.x = Math.random()*w;
-        this.y = Math.random()*h;
-        this.r = rand(0.6, 2.2);
-        this.vx = rand(-0.15, 0.15);
-        this.vy = rand(-0.15, 0.15);
-        this.alpha = rand(0.05, 0.9);
-        this.phase = Math.random()*Math.PI*2;
-      }
-      step(t){
-        this.x += this.vx + Math.cos(t/1000 + this.phase)*0.08;
-        this.y += this.vy + Math.sin(t/1200 + this.phase)*0.08;
-        if (this.x < -20 || this.x > w+20 || this.y < -20 || this.y > h+20) this.reset();
-      }
-      draw(){
-        ctx.save();
-        const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r*6);
-        g.addColorStop(0, `rgba(0,240,255,${this.alpha})`);
-        g.addColorStop(0.5, `rgba(156,107,255,${this.alpha*0.4})`);
-        g.addColorStop(1, `rgba(2,4,12,0)`);
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.r*6, 0, Math.PI*2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
+        <section class="final-cta">
+            <div class="wrap">
+                <h2>Ready to Become a Digital Detective?</h2>
+                <p>Join thousands of users who have enhanced their ability to identify and combat misinformation.</p>
+                <a href="#" class="btn btn-primary">Start Your Journey <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </section>
 
-    function initParticles(){
-      particles.length = 0;
-      for(let i=0;i<PARTICLE_COUNT;i++) particles.push(new P());
-    }
-    initParticles();
+        <footer style="background-color: #1a202c; color: #fff; padding: 3rem 0; border-top: 1px solid rgba(255,255,255,0.05);">
+            <div class="wrap" style="padding: 0 20px;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                            <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--neon-purple); box-shadow: 0 0 8px var(--neon-purple);"></div>
+                            <h2 style="font-size: 1.5rem; font-weight: 700; background: var(--accent); -webkit-background-clip: text; background-clip: text; color: transparent;">TruthGuard</h2>
+                        </div>
+                        <p style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6;">Empowering digital citizens with AI-powered tools to detect misinformation and build critical thinking skills for the information age.</p>
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; color: #fff;">Stay Updated</h3>
+                        <div style="display: flex; margin-top: 1rem; max-width: 300px;">
+                            <input type="email" placeholder="Enter your email" style="border: 1px solid #4a5568; background: #2d3748; color: #fff; padding: 0.75rem; border-radius: 8px 0 0 8px; flex-grow: 1; font-size: 0.9rem;" />
+                            <button type="submit" style="background-color: var(--neon-purple); border: none; padding: 0.75rem 1rem; color: #fff; border-radius: 0 8px 8px 0; cursor: pointer;">Subscribe</button>
+                        </div>
+                        <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #a0aec0;">Get updates on new features and research insights.</p>
+                    </div>
 
-    let mouse = {x:-1000,y:-1000};
-    window.addEventListener('mousemove', e=>{ mouse.x=e.clientX; mouse.y=e.clientY; })
-    window.addEventListener('mouseout', ()=>{ mouse.x=-1000; mouse.y=-1000; })
+                    <div>
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #fff;">Platform</h3>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Content Analyzer</a></li>
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">API Access</a></li>
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Browser Extension</a></li>
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Mobile App</a></li>
+                        </ul>
+                    </div>
 
-    function frame(t){
-      ctx.clearRect(0,0,w,h);
-      const vg = ctx.createLinearGradient(0,0,0,h);
-      vg.addColorStop(0, 'rgba(2,2,8,0.12)');
-      vg.addColorStop(1, 'rgba(2,2,8,0.35)');
-      ctx.fillStyle = vg; ctx.fillRect(0,0,w,h);
+                    <div>
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #fff;">Education</h3>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Learning Modules</a></li>
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Case Studies</a></li>
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Research Papers</a></li>
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Webinars</a></li>
+                        </ul>
+                    </div>
 
-      for(const p of particles){
-        p.step(t);
-        p.draw();
-        const dx = p.x - mouse.x, dy = p.y - mouse.y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        if (d < 140){
-          ctx.save();
-          ctx.globalAlpha = Math.max(0, 0.9 - d/140);
-          ctx.strokeStyle = 'rgba(0,240,255,0.08)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(mouse.x, mouse.y);
-          ctx.stroke();
-          ctx.restore();
+                    <div>
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #fff;">Company</h3>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">About Us</a></li>
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Careers</a></li>
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Privacy Policy</a></li>
+                            <li style="margin-bottom: 0.5rem;"><a href="#" style="font-size: 0.9rem; color: #a0aec0; line-height: 1.6; text-decoration: none;">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem; border-top: 1px solid #2d3748; padding-top: 1.5rem; color: #a0aec0; font-size: 0.8rem;">
+                    <p>&copy; 2024 TruthGuard. All rights reserved.</p>
+                    <p>Powered by Google Cloud AI • BERT Neural Networks</p>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        /* Canvas particle background (lightweight) */
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d', { alpha: true });
+        let w = canvas.width = innerWidth;
+        let h = canvas.height = innerHeight;
+        const particles = [];
+        const PARTICLE_COUNT = Math.floor(Math.min(160, (w*h)/10000));
+
+        function rand(min, max){ return Math.random()*(max-min)+min }
+        function resize(){ w = canvas.width = innerWidth; h = canvas.height = innerHeight; initParticles(); }
+        addEventListener('resize', resize);
+
+        class P {
+            constructor(){ this.reset(); }
+            reset(){
+                this.x = Math.random()*w;
+                this.y = Math.random()*h;
+                this.r = rand(0.6, 2.2);
+                this.vx = rand(-0.15, 0.15);
+                this.vy = rand(-0.15, 0.15);
+                this.alpha = rand(0.05, 0.9);
+                this.phase = Math.random()*Math.PI*2;
+            }
+            step(t){
+                this.x += this.vx + Math.cos(t/1000 + this.phase)*0.08;
+                this.y += this.vy + Math.sin(t/1200 + this.phase)*0.08;
+                if (this.x < -20 || this.x > w+20 || this.y < -20 || this.y > h+20) this.reset();
+            }
+            draw(){
+                ctx.save();
+                const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r*6);
+                g.addColorStop(0, `rgba(0,240,255,${this.alpha})`);
+                g.addColorStop(0.5, `rgba(156,107,255,${this.alpha*0.4})`);
+                g.addColorStop(1, `rgba(2,4,12,0)`);
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r*6, 0, Math.PI*2);
+                ctx.fill();
+                ctx.restore();
+            }
         }
-      }
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
 
-    /* reveal on scroll */
-    const reveals = document.querySelectorAll('.reveal');
-    const obs = new IntersectionObserver((entries)=>{
-      entries.forEach(ent=>{
-        if(ent.isIntersecting){ ent.target.classList.add('show'); obs.unobserve(ent.target); }
-      })
-    }, {threshold:0.12});
-    reveals.forEach(r => obs.observe(r));
+        function initParticles(){
+            particles.length = 0;
+            for(let i=0;i<PARTICLE_COUNT;i++) particles.push(new P());
+        }
+        initParticles();
 
-    /* subtle cube animation */
-    (function animateCubes(){
-      const cubes = document.querySelectorAll('.cube');
-      let rot = 0;
-      function tick(){
-        rot += 0.6;
-        cubes.forEach((c,i)=>{
-          const r = rot + i*12;
-          c.style.transform = `translateY(${Math.sin((r + i*20)/10)*8}px) rotateZ(${r/6}deg)`;
+        let mouse = {x:-1000,y:-1000};
+        window.addEventListener('mousemove', e=>{ mouse.x=e.clientX; mouse.y=e.clientY; })
+        window.addEventListener('mouseout', ()=>{ mouse.x=-1000; mouse.y=-1000; })
+
+        function frame(t){
+            ctx.clearRect(0,0,w,h);
+            const vg = ctx.createLinearGradient(0,0,0,h);
+            vg.addColorStop(0, 'rgba(2,2,8,0.12)');
+            vg.addColorStop(1, 'rgba(2,2,8,0.35)');
+            ctx.fillStyle = vg; ctx.fillRect(0,0,w,h);
+
+            for(const p of particles){
+                p.step(t);
+                p.draw();
+                const dx = p.x - mouse.x, dy = p.y - mouse.y;
+                const d = Math.sqrt(dx*dx + dy*dy);
+                if (d < 140){
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, 0.9 - d/140);
+                    ctx.strokeStyle = 'rgba(0,240,255,0.08)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+
+        /* reveal on scroll */
+        const reveals = document.querySelectorAll('.reveal');
+        const obs = new IntersectionObserver((entries)=>{
+            entries.forEach(ent=>{
+                if(ent.isIntersecting){ ent.target.classList.add('show'); obs.unobserve(ent.target); }
+            })
+        }, {threshold:0.12});
+        reveals.forEach(r => obs.observe(r));
+
+        /* subtle cube animation */
+        (function animateCubes(){
+            const cubes = document.querySelectorAll('.cube');
+            let rot = 0;
+            function tick(){
+                rot += 0.6;
+                cubes.forEach((c,i)=>{
+                    const r = rot + i*12;
+                    c.style.transform = `translateY(${Math.sin((r + i*20)/10)*8}px) rotateZ(${r/6}deg)`;
+                });
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        })();
+
+        /* Analyzer functionality */
+        const analyzeBtn = document.querySelector('.btn-analyze');
+        const resultsSection = document.querySelector('.results-section');
+        
+        analyzeBtn.addEventListener('click', function() {
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
         });
-        requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    })();
+        
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
 
-    /* Analyzer functionality */
-    const analyzeBtn = document.querySelector('.btn-analyze');
-    const resultsSection = document.querySelector('.results-section');
-    
-    analyzeBtn.addEventListener('click', function() {
-      resultsSection.style.display = 'block';
-      resultsSection.scrollIntoView({ behavior: 'smooth' });
-    });
-    
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', function() {
-        tabs.forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-  </script>
+        /* Animate line under headings */
+        const animatedLines = document.querySelectorAll('.section-title');
+        const lineObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-line');
+                    lineObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        animatedLines.forEach(line => lineObserver.observe(line));
+    </script>
 </body>
 </html>
