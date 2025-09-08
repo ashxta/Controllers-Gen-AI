@@ -1,4 +1,4 @@
-Got it 👍 Here’s your **formatted and properly indented README.md** for TruthGuard:
+
 
 ---
 
@@ -7,6 +7,8 @@ Got it 👍 Here’s your **formatted and properly indented README.md** for Trut
 **An AI-Powered Platform for Misinformation Detection and Education**
 
 ---
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/c545e31e-ad55-4f7b-b9f7-9dce1279c1b0" />
+
 
 ## 🔍 Overview
 
@@ -102,10 +104,9 @@ See the [LICENSE](LICENSE) file for more information.
 ## ✉️ Contact
 
 For any inquiries or feedback, please reach out to us at:
-📧 **[contact@truthguard.com](mailto:contact@truthguard.com)**
+📧 **[aa1133@srmist.edu.in](mailto:aa1133@srmist.edu.in)**
 
 ---
 
-✅ This version is clean, well-indented, and **GitHub README-ready**.
 
 Do you also want me to design a **banner (header image)** for the README (something like a "TruthGuard | AI Against Misinformation" visual)?
