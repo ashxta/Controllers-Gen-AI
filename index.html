@@ -91,8 +91,6 @@
         .cube{position:absolute;width:96px;height:96px;border-radius:10px;background: linear-gradient(145deg, rgba(156,107,255,0.18), rgba(0,240,255,0.06));border:1px solid rgba(156,107,255,0.08);backdrop-filter: blur(6px);display:flex;align-items:center;justify-content:center;transform-style: preserve-3d;box-shadow:0 14px 40px rgba(0,0,0,0.6);animation: floaty 6s ease-in-out infinite}
         .cube .icon{font-size:26px;color:var(--neon-cyan);opacity:0.95}
         @keyframes floaty{0%{transform:translateY(0) rotateX(0) rotateY(0)}50%{transform:translateY(-18px) rotateX(8deg) rotateY(6deg)}100%{transform:translateY(0) rotateX(0) rotateY(0)}}
-        .spark{position:absolute;width:160px;height:2px;top:340px;left:110px;opacity:0.8;background: linear-gradient(90deg, rgba(156,107,255,0.0), rgba(156,107,255,0.7), rgba(0,240,255,0.3));transform-origin:left center;animation: slide 2.2s linear infinite}
-        @keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(160%)}}
         
         /* New cube positions */
         .cube.text-cube { top: 60px; left: 60px; }
@@ -117,23 +115,14 @@
             padding-bottom:6px; /* space for underline */
         }
         
+        /* The moving line animation is removed */
         .section-title h2::after {
             content:"";
             position:absolute;
             left:0;
             bottom:0;
-            width:80px; /* Animate to this width */
-            height:2px;
-            background:linear-gradient(90deg,var(--neon-purple),var(--neon-cyan));
-            box-shadow:0 0 8px rgba(0,240,255,0.6);
-            border-radius:2px;
-            animation: line-move 3s infinite ease-in-out;
-        }
-        
-        @keyframes line-move {
-            0% { transform: translateX(0); opacity: 1; }
-            50% { transform: translateX(80px); opacity: 0.5; }
-            100% { transform: translateX(0); opacity: 1; }
+            width:0;
+            height:0;
         }
 
         /* cards */
@@ -669,7 +658,6 @@
                     <div class="cube image-cube"><i class="fas fa-image icon"></i></div>
                     <div class="cube video-cube"><i class="fas fa-video icon"></i></div>
                     <div class="cube link-cube"><i class="fas fa-link icon"></i></div>
-                    <div class="spark" aria-hidden="true"></div>
                 </div>
             </div>
         </section>
