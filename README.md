@@ -10,70 +10,61 @@
 <img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/c545e31e-ad55-4f7b-b9f7-9dce1279c1b0" />
 
 
-## 🔍 Overview
+## 🔍 Overview  
+TruthGuard is an innovative AI platform designed to combat the rapid spread of misinformation and disinformation. By leveraging real-time analysis of text, images, videos, and links, the platform not only identifies misleading content but also educates users on the patterns and tactics used to create it.  
 
-TruthGuard is an innovative AI platform designed to combat the rapid spread of misinformation and disinformation. By leveraging real-time analysis of text, images, and links, the platform not only identifies misleading content but also educates users on the patterns and tactics used to create it.
-
-Our mission is to build long-term resilience against fake news by empowering users with the knowledge to become critical consumers of information.
-
----
-
-## ✨ Features
-
-* **Real-Time Analysis:** Instantly analyze content from a variety of sources including articles, social media posts, and images.
-* **Multi-Modal Detection:** Detect misleading information across different formats—text, visual, and web links.
-* **Educational Insights:** Get detailed explanations on why a piece of content is misleading, including highlighted phrases, manipulated areas in images, or suspicious source information.
-* **Pattern Recognition:** Learn to spot common deceptive tactics and logical fallacies to strengthen your own media literacy.
-* **User-Friendly Interface:** A clean and intuitive design makes the platform accessible for everyday users.
+Our mission is to build long-term resilience against fake news by empowering users with the knowledge to become critical consumers of information.  
 
 ---
 
-## 🚀 Getting Started
+## ✨ Features  
+- **Real-Time Analysis:** Instantly analyze content from a variety of sources including articles, social media posts, images, and videos.  
+- **Multi-Modal Detection:** Detect misleading information across different formats—text, visuals, video, and web links.  
+- **Educational Insights:** Get detailed explanations on why a piece of content is misleading, including highlighted phrases, manipulated areas in images/videos, or suspicious source information.  
+- **Pattern Recognition:** Learn to spot common deceptive tactics and logical fallacies to strengthen your media literacy.  
+- **User-Friendly Interface:** A clean and intuitive design makes the platform accessible for everyday users.  
 
-### Prerequisites
+---
 
-* Node.js (for the frontend and backend)
-* Python 3.x (for the AI/ML components)
-* Git
+## 🚀 Getting Started  
 
-### Installation
+### Prerequisites  
+- Node.js (for the frontend and backend)  
+- Python 3.x (for the AI/ML components)  
+- Git  
 
-1. Clone the repository:
+### Installation  
+Clone the repository:  
+```bash
+git clone https://github.com/your-username/truthguard.git
+cd truthguard
+````
 
-   ```bash
-   git clone https://github.com/your-username/truthguard.git
-   cd truthguard
-   ```
+Install dependencies for the frontend and backend:
 
-2. Install dependencies for the frontend and backend:
+```bash
+# For the frontend
+npm install
 
-   ```bash
-   # For the frontend
-   npm install
+# For the backend
+cd backend
+npm install
 
-   # For the backend (if applicable)
-   cd backend
-   npm install
-   ```
+# For the AI/ML models
+pip install -r requirements.txt
+```
 
-3. Install AI/ML model requirements:
+Set up your environment variables. You will need API keys for certain services. Create a `.env` file in the root directory and add the necessary variables.
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+Start the application:
 
-4. Set up your environment variables.
-   Create a `.env` file in the root directory and add the necessary API keys.
+```bash
+# Start the frontend
+npm run dev
 
-5. Start the application:
-
-   ```bash
-   # Start the frontend
-   npm run dev
-
-   # Start the backend
-   npm start
-   ```
+# Start the backend
+npm start
+```
 
 ---
 
@@ -81,9 +72,9 @@ Our mission is to build long-term resilience against fake news by empowering use
 
 * **Frontend:** React, Tailwind CSS
 * **Backend:** Node.js, Express.js
-* **AI/ML:** Python, TensorFlow, PyTorch
+* **AI/ML:** Python, TensorFlow, PyTorch, OpenCV (for video analysis)
 * **Database:** MongoDB / Firebase Firestore
-* **Deployment:** Docker, AWS
+* **Deployment:** Docker, AWS / Google Cloud
 
 ---
 
@@ -96,8 +87,7 @@ If you're interested in helping, please check out our **CONTRIBUTING.md** guide 
 
 ## 📝 License
 
-This project is licensed under the **MIT License**.
-See the [LICENSE](LICENSE) file for more information.
+This project is licensed under the **MIT License**. See the LICENSE file for more information.
 
 ---
 
@@ -108,5 +98,3 @@ For any inquiries or feedback, please reach out to us at:
 
 ---
 
-
-Do you also want me to design a **banner (header image)** for the README (something like a "TruthGuard | AI Against Misinformation" visual)?
